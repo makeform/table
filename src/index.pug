@@ -1,0 +1,22 @@
+div
+  div(plug="widget")
+    table.table
+      tr
+        th(ld-each="head")
+        th.m-edit &nbsp;
+      tr(ld="no-data")
+        td.text-muted(colspan="99",t) 無資料
+      tr(ld-each="row")
+        td(style="vertical-align:middle;",ld-each="editor-field")
+        td.m-edit
+          //- `t` in ld-each won't be transform by block,
+          //- since the dom is detached and cloned
+          //- so we have to do it ourselves.
+          .btn.btn-block.btn-outline-secondary.text-nowrap(ld="t delete") 刪除
+      tr.m-edit
+        td(ld-each="adder-field")
+        td: .btn.btn-block.btn-outline-secondary.text-nowrap(t,ld="add") 加入
+    .mt-2: .text-danger(ld-each="error")
+  style(type="text/css"): :stylus
+    label { white-space: nowrap }
+  script(type="@plotdb/block"): include:lsc index.ls
