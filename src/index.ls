@@ -147,6 +147,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
             init:
               "@": ({ctx, node}) ->
                 {type, meta} = ctx.cfg
+                ctx.cfg._meta = meta = ({} <<< meta or {}) <<< {is-required: false}
                 manager.get name: (type or 'input')
                   .then (bc) -> bc.create!
                   .then (bi) -> bi.attach {root: node, data: meta} .then ->
@@ -155,7 +156,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
               "@": ({ctx}) ~>
                 {bi, itf} = lc.adder.fields[ctx.key] or {}
                 if !itf => return
-                itf.deserialize({} <<< ctx.cfg.meta <<< {readonly: @mod.info.meta.readonly})
+                itf.deserialize({} <<< ctx.cfg._meta <<< {readonly: @mod.info.meta.readonly})
                   .then ->
                     bi.transform \i18n
                     itf.render!
