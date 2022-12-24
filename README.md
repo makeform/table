@@ -1,1 +1,5 @@
-# table
+# @makeform/table
+
+## License
+
+MIT
