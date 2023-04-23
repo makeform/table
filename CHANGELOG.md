@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.0.3
+
+ - remove row block info to correctly support re-editing of a previously existed key
+
+
 ## v1.0.2
 
  - tweak margin after widget

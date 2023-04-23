@@ -92,6 +92,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
             init: t: ({node}) -> node.setAttribute \t, node.innerText
             action: click: delete: ({views, ctx}) ~>
               if @mod.info.meta.readonly => return
+              lc.editor[ctx.key] = null
               idx = lc.data.map(->it.key).indexOf(ctx.key)
               if idx == -1 => return
               lc.data.splice idx, 1
