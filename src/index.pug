@@ -1,6 +1,6 @@
 div
-  div(plug="widget")
-    table.table
+  .mb-4(plug="widget")
+    table.table.mb-0
       tr
         th(ld-each="head")
         th.m-edit &nbsp;
@@ -16,7 +16,7 @@ div
       tr.m-edit
         td(ld-each="adder-field")
         td: .btn.btn-block.btn-outline-secondary.text-nowrap(t,ld="add") 加入
-    .mt-2: .text-danger(ld-each="error")
+    div: .text-danger(ld-each="error")
   style(type="text/css"): :stylus
     label { white-space: nowrap }
   script(type="@plotdb/block"): include:lsc index.ls
