@@ -115,8 +115,13 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     # so, for now we only reinit if following field is not defined.
                     if lc.editor{}[ctxs.0.key][ctx.key] => return
                     manager.from {name: type}, {root: node, data: meta}
-                      .then (o) ->
+                      .then (o) ~>
                         {bi, itf} = lc.editor{}[ctxs.0.key][ctx.key] = {bi: o.instance, itf: o.interface}
+                        if @mod.child.host =>
+                          itf.adapt({
+                            upload: ({file, progress}) ~>
+                              @mod.child.host.upload({file, progress, alias: meta.title})
+                          })
                         itf.value ctx.value
                         itf.on \change, ->
                           # lc.data may be overwritten so we have to lookup our object again
@@ -153,10 +158,17 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                   .then (bc) -> bc.create!
                   .then (bi) -> bi.attach {root: node, data: meta} .then ->
                     lc.adder.fields[ctx.key] = {bi, itf: bi.interface!}
+
             handler:
               "@": ({ctx}) ~>
                 {bi, itf} = lc.adder.fields[ctx.key] or {}
                 if !itf => return
+                if @mod.child.host =>
+                  # table adapt may not yet called when we init. so we call itf adapt here.
+                  itf.adapt({
+                    upload: ({file, progress}) ~>
+                      @mod.child.host.upload({file, progress, alias: ctx.cfg.meta.title})
+                  })
                 itf.deserialize({} <<< ctx.cfg._meta <<< {readonly: @mod.info.meta.readonly})
                   .then ->
                     bi.transform \i18n
@@ -164,6 +176,9 @@ mod = ({root, ctx, data, parent, t, manager}) ->
   render: ->
     @mod.child.metamap = Object.fromEntries(@mod.info.config.fields.map (o,i) ~> [@mod.child.getkey(o,i) ,o])
     @mod.child.view.render!
+  adapt: (opt) ->
+    @mod.child.host = opt
+    @render!
   is-empty: (v) -> !Array.isArray(v) or !v.length
   validate: (opt = {}) ->
     itfs = []

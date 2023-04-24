@@ -7,7 +7,7 @@ div
       tr(ld="no-data")
         td.text-muted(colspan="99",t) 無資料
       tr(ld-each="row")
-        td(style="vertical-align:middle;",ld-each="editor-field")
+        td(ld-each="editor-field")
         td.m-edit
           //- `t` in ld-each won't be transform by block,
           //- since the dom is detached and cloned
