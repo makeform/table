@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.1.1
+
+ - remove label nowrap style to prevent form overflow to affect overall layout
+
+
 ## v1.1.0
 
  - add header block for information such as title, description and limitation.
