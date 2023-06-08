@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.1.0
+
+ - add header block for information such as title, description and limitation.
+
+
 ## v1.0.4
 
  - tweak cell alignment to top

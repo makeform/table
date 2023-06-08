@@ -1,5 +1,11 @@
 div
   .mb-4(plug="widget")
+    div(ld="display", data-display="block"): label.d-flex.align-items-end.flex-wrap
+      div
+        span(ld="label")
+        span.text-danger.ml-2(ld="is-required") *
+      .flex-grow-1
+      .m-edit: .text-danger.text-sm(ld="limitation")
     table.table.mb-0
       tr
         th(ld-each="head")
