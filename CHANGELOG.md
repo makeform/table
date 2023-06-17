@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.1.2
+
+ - add `desc` field.
+
+
 ## v1.1.1
 
  - remove label nowrap style to prevent form overflow to affect overall layout
