@@ -46,7 +46,8 @@ mod = ({root, ctx, data, parent, t, manager}) ->
     @mod.child.view = new ldview do
       root: root
       init: "popup-input": ({node}) ->
-        lc.popup-input = new ldcover root: node, resident: true, in-place: false
+        # we set `in-place` to true so block transformation works for content in it.
+        lc.popup-input = new ldcover root: node, resident: true, in-place: true
       action: click:
         "popup-input-toggle": ~>
           if @mod.info.meta.readonly => return

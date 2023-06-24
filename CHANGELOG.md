@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.1.3
+
+ - fix bug: i18n change doesn't affect fixed content in `popup-input` 
+
+
 ## v1.1.2
 
  - add `desc` field.
