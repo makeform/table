@@ -1,5 +1,12 @@
 # Change Logs
 
+## v1.1.4
+
+ - use `mf-note` to replace styling in note-related tag.
+ - support `note` selector
+ - add `m-edit` for error hint
+
+
 ## v1.1.3
 
  - fix bug: i18n change doesn't affect fixed content in `popup-input` 
