@@ -1,5 +1,11 @@
 # Change Logs
 
+## v1.2.0
+
+ - use `新增` to replace `加入``
+ - support `entry-name` selector
+
+
 ## v1.1.4
 
  - use `mf-note` to replace styling in note-related tag.

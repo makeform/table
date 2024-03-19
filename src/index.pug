@@ -22,7 +22,7 @@ div
           .btn.btn-block.btn-outline-secondary.text-nowrap(ld="t delete") 刪除
       tr.m-edit
         td(ld-each="adder-field")
-        td: .btn.btn-block.btn-outline-secondary.text-nowrap(t,ld="add") 加入
+        td: .btn.btn-block.btn-outline-secondary.text-nowrap(ld="add") #[span(t="新增")]#[span(ld="entry-name")]
     .m-edit: .text-danger(ld-each="error")
     .m-edit(ld="display",data-display="block"): .mf-note.text-sm.mt-2.note(ld-each="note")
   script(type="@plotdb/block"): include:lsc index.ls

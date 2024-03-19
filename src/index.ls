@@ -8,10 +8,12 @@ module.exports =
     i18n:
       en:
         "加入": "Add"
+        "新增": "Add"
         "刪除": "Delete"
         "無資料": "No data"
       zh:
         "加入": "加入"
+        "新增": "新增"
         "刪除": "刪除"
         "無資料": "無資料"
   init: (opt) -> opt.pubsub.fire \subinit, mod: mod(opt)
@@ -79,6 +81,9 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           node.classList.toggle \disabled, !!@mod.info.meta.readonly
         "add": ({node}) ~>
           node.classList.toggle \disabled, !!@mod.info.meta.readonly
+        "entry-name": ({node}) ~>
+          n = @mod.info.meta.config.entry-name
+          node.innerText = if !n => '' else t(n)
         "no-data": ({node}) ->
           node.classList.toggle \d-none, (lc.data and lc.data.length)
         head:
