@@ -21,7 +21,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
   {ldview, ldcover} = ctx
   init: ->
     lc = @mod.child
-    lc <<< data: [], editor: [], adder: {fields: []}
+    lc <<< data: [], editor: [], adder: {fields: []}, lastmeta: {}
     @on \change, (v = []) ->
       lc.data = v
       lc.view.render!
@@ -140,16 +140,25 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                         if ctxs.0.proxise => that ctx.key
                   handler: "@": ({ctx, ctxs}) ~>
                     map = @mod.child.metamap
+                    lastmap = @mod.child.lastmeta
                     if !(editor = lc.editor{}[ctxs.0.key][ctx.key]) => return
                     if !editor.itf => return
-                    editor.itf.deserialize({} <<< (map[ctx.key].meta or {}) <<< {readonly: @mod.info.meta.readonly})
+                    meta = {} <<< (map[ctx.key].meta or {}) <<< {readonly: @mod.info.meta.readonly}
+                    strmeta = JSON.stringify(meta)
+                    lastmeta = lastmap{}[ctxs.0.key][ctx.key]
+                    lastmap[ctxs.0.key][ctx.key] = strmeta
+                    Promise.resolve!
+                      .then ->
+                        if strmeta == lastmeta => return
+                        editor.itf.deserialize meta, {init:true}
                       .then ~>
                         editor.bi.transform \i18n
                         editor.itf.value ctx.value, {from-source: true}
                       .then ~>
-                        # deserialize re-validate with init: true.
-                        # some empty fields may thus not checked. force validation again here.
-                        editor.itf.validate!
+                        # we used to forec validate here, because we deserialize widget every time,
+                        # and deserialize re-validate with init: true, thus reset validate result.
+                        # however, we now skip deserialize if meta not changed, so this becomes unnecessary.
+                        # editor.itf.validate!
                         editor.itf.mode @mode!
 
         "adder-field":

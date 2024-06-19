@@ -1,4 +1,6 @@
 div
+  style(type="text/css"): include:stylus index.styl
+  script(type="@plotdb/block"): include:lsc index.ls
   .mb-4(plug="widget")
     div(ld="display", data-display="block"): label.d-flex.align-items-end.flex-wrap
       div
@@ -21,8 +23,9 @@ div
           //- so we have to do it ourselves.
           .btn.btn-block.btn-outline-secondary.text-nowrap(ld="t delete") 刪除
       tr.m-edit
-        td(ld-each="adder-field")
+        //- if we want users to fill fields before add, unhide this
+        //- ( we hide this because some users are confused and not sure if they added or not )
+        td(ld-each="adder-field",style="visibility:hidden")
         td: .btn.btn-block.btn-outline-secondary.text-nowrap(ld="add") #[span(t="新增")]#[span(ld="entry-name")]
-    .m-edit: .text-danger(ld-each="error")
+    .m-edit: .text-danger.mt-2(ld-each="error")
     .m-edit(ld="display",data-display="block"): .mf-note.text-sm.mt-2.note(ld-each="note")
-  script(type="@plotdb/block"): include:lsc index.ls

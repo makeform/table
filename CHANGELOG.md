@@ -1,5 +1,13 @@
 # Change Logs
 
+## v1.2.1
+
+ - tweak error style
+ - hide adder fields
+ - deserialize only if needed
+ - upgrade dependencies
+
+
 ## v1.2.0
 
  - use `新增` to replace `加入``
