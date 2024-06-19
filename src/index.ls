@@ -21,7 +21,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
   {ldview, ldcover} = ctx
   init: ->
     lc = @mod.child
-    lc <<< data: [], editor: [], adder: {fields: []}, lastmeta: {}
+    lc <<< data: [], editor: [], adder: {fields: []}, lastmeta: {}, isnew: {}
     @on \change, (v = []) ->
       lc.data = v
       lc.view.render!
@@ -123,6 +123,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     manager.from {name: type}, {root: node, data: meta}
                       .then (o) ~>
                         {bi, itf} = lc.editor{}[ctxs.0.key][ctx.key] = {bi: o.instance, itf: o.interface}
+                        lc.isnew{}[ctxs.0.key][ctx.key] = true
                         if @mod.child.host =>
                           itf.adapt({
                             upload: ({file, progress}) ~>
@@ -141,6 +142,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                   handler: "@": ({ctx, ctxs}) ~>
                     map = @mod.child.metamap
                     lastmap = @mod.child.lastmeta
+                    isnew = @mod.child.isnew
                     if !(editor = lc.editor{}[ctxs.0.key][ctx.key]) => return
                     if !editor.itf => return
                     meta = {} <<< (map[ctx.key].meta or {}) <<< {readonly: @mod.info.meta.readonly}
@@ -150,6 +152,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     Promise.resolve!
                       .then ->
                         if strmeta == lastmeta => return
+                        isnew{}[ctxs.0.key][ctx.key] = false
                         editor.itf.deserialize meta, {init:true}
                       .then ~>
                         editor.bi.transform \i18n
@@ -203,10 +206,14 @@ mod = ({root, ctx, data, parent, t, manager}) ->
       @render!
       return Promise.resolve(@_errors)
     @mod.child.data.map (r) ~> r.list.map (d) ~>
-      if @mod.child.editor{}[r.key][d.key] => itfs.push that.itf
-    Promise.all(itfs.map (itf) -> itf.validate opt)
+      if @mod.child.editor{}[r.key][d.key] => itfs.push {itf: that.itf, isnew: @mod.child.isnew{}[r.key][d.key]}
+    # non-init validate before isnew is cleared will cause invalidate status for this table
+    # in this case, no errro hint in internal fields but table itself shows error,
+    # which causes confusion to users. thus, we use isnew to determine a uninited field status
+    # and force init: true when validating them.
+    Promise.all(itfs.map (o) ~> o.itf.validate(opt <<< {init: o.isnew or opt.init}))
       .then ~>
-        s = (Math.max.apply Math, itfs.map (itf) -> itf.status!) >? 1
+        s = (Math.max.apply Math, itfs.map (o) -> o.itf.status!) >? 1
         if !opt.init and s == 1 =>
           s = if @mod.info.is-required => 2 else 0
         @status s

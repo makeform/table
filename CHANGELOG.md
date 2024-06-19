@@ -1,5 +1,10 @@
 # Change Logs
 
+## v1.2.2
+
+ - ensure inner widget validated with `init:true` for not-yet-rendered widgets to prevent inconsistent validation status between inside and outside.
+
+
 ## v1.2.1
 
  - tweak error style
