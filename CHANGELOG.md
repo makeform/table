@@ -1,5 +1,12 @@
 # Change Logs
 
+## v1.2.4
+
+ - add `no-data-cell` ld selector for programmatically deciding colspan for `no-data-cell` to prevent layout issue
+ - explicitly set button cell size
+ - use css class for adder-field and add css to prevent content overflow and interaction
+
+
 ## v1.2.3
 
  - make table layout fixed for consistent table cell size
