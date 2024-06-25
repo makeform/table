@@ -86,6 +86,8 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           node.innerText = if !n => '' else t(n)
         "no-data": ({node}) ->
           node.classList.toggle \d-none, (lc.data and lc.data.length)
+        "no-data-cell": ({node}) ~>
+          node.setAttribute \colspan, (@mod.info.config.fields.length + 1)
         head:
           list: ~> @mod.info.config.fields.map (d,i) -> {cfg: d, key: getkey(d,i)}
           key: -> it.key
