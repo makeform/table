@@ -88,6 +88,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           node.classList.toggle \d-none, (lc.data and lc.data.length)
         "no-data-cell": ({node}) ~>
           node.setAttribute \colspan, (@mod.info.config.fields.length + 1)
+        headers: ({node}) ~> node.classList.toggle \d-none, !!@mod.info.config.no-header
         head:
           list: ~> @mod.info.config.fields.map (d,i) -> {cfg: d, key: getkey(d,i)}
           key: -> it.key

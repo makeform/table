@@ -1,5 +1,11 @@
 # Change Logs
 
+## v1.3.0
+
+ - support `no-header` flag
+ - update readme for configs
+
+
 ## v1.2.4
 
  - add `no-data-cell` ld selector for programmatically deciding colspan for `no-data-cell` to prevent layout issue

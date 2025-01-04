@@ -10,14 +10,14 @@ div
       .m-edit: .mf-note.text-sm(ld="limitation")
     .text-sm.text-muted(ld="display", data-display="block"): div(ld="desc", style="margin:-.6em 0 .7em")
     table.table.mb-0
-      tr
+      tr(ld="headers")
         th(ld-each="head")
         th.m-edit(style="width:6em") &nbsp;
       tr(ld="no-data")
         td.text-muted(t,ld="no-data-cell") 無資料
       tr(ld-each="row")
         td(ld-each="editor-field")
-        td.m-edit
+        td.m-edit(style="width:6em")
           //- `t` in ld-each won't be transform by block,
           //- since the dom is detached and cloned
           //- so we have to do it ourselves.
@@ -26,6 +26,7 @@ div
         //- if we want users to fill fields before add, unhide this
         //- ( we hide this because some users are confused and not sure if they added or not )
         td.adder-hidden(ld-each="adder-field")
-        td: .btn.btn-block.btn-outline-secondary.text-nowrap(ld="add") #[span(t="新增")]#[span(ld="entry-name")]
+        td(style="width:6em")
+          .btn.btn-block.btn-outline-secondary.text-nowrap(ld="add") #[span(t="新增")]#[span(ld="entry-name")]
     .m-edit: .text-danger.mt-2(ld-each="error")
     .m-edit(ld="display",data-display="block"): .mf-note.text-sm.mt-2.note(ld-each="note")
