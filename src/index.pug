@@ -1,14 +1,7 @@
 div
   style(type="text/css"): include:stylus index.styl
   script(type="@plotdb/block"): include:lsc index.ls
-  .mb-4(plug="widget")
-    div(ld="display", data-display="block"): label.d-flex.align-items-end.flex-wrap
-      div
-        span(ld="label")
-        span.text-danger.ml-2(ld="is-required") *
-      .flex-grow-1
-      .m-edit: .mf-note.text-sm(ld="limitation")
-    .text-sm.text-muted(ld="display", data-display="block"): div(ld="desc", style="margin:-.6em 0 .7em")
+  div(plug="body")
     table.table.mb-0
       tr(ld="headers")
         th(ld-each="head")
@@ -29,4 +22,3 @@ div
         td(style="width:6em")
           .btn.btn-block.btn-outline-secondary.text-nowrap(ld="add") #[span(t="新增")]#[span(ld="entry-name")]
     .m-edit: .text-danger.mt-2(ld-each="error")
-    .m-edit(ld="display",data-display="block"): .mf-note.text-sm.mt-2.note(ld-each="note")
