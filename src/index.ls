@@ -86,7 +86,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           node.innerText = if !n => '' else t(n)
         "no-data": ({node}) ->
           node.classList.toggle \d-none, (lc.data and lc.data.length)
-        "no-data-cell": ({node}) ~>
+        "span-cell": ({node}) ~>
           node.setAttribute \colspan, (@mod.info.config.fields.length + 1)
         headers: ({node}) ~> node.classList.toggle \d-none, !!@mod.info.config.no-header
         head:

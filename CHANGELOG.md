@@ -1,5 +1,10 @@
 # Change Logs
 
+## v2.0.1
+
+ - tweak `add` button layout to prevent text overflow
+
+
 ## v2.0.0
 
  - tweak DOM based on updated `@makeform/common` DOM structure.
