@@ -161,7 +161,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                         editor.bi.transform \i18n
                         editor.itf.value ctx.value, {from-source: true}
                       .then ~>
-                        # we used to forec validate here, because we deserialize widget every time,
+                        # we used to force validate here, because we deserialize widget every time,
                         # and deserialize re-validate with init: true, thus reset validate result.
                         # however, we now skip deserialize if meta not changed, so this becomes unnecessary.
                         # editor.itf.validate!
