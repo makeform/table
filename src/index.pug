@@ -2,6 +2,7 @@ div
   style(type="text/css"): include:stylus index.styl
   script(type="@plotdb/block"): include:lsc index.ls
   div(plug="body")
+    .cps-ctrl: .slot-root(ld="slotroot")
     table.table.mb-0
       tr(ld="headers")
         th(ld-each="head")

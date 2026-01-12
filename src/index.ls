@@ -1,6 +1,8 @@
 module.exports =
   pkg:
-    name: "@makeform/table", extend: {name: "@makeform/common"}
+    name: \@makeform/table
+    extend: name: \@makeform/common
+    host: name: \@grantdash/composer
     dependencies: [
       {name: "ldcover"}
       {name: "ldcover", type: \css, global: true}
@@ -11,14 +13,21 @@ module.exports =
         "新增": "Add"
         "刪除": "Delete"
         "無資料": "No data"
-      zh:
+      "zh-TW":
         "加入": "加入"
         "新增": "新增"
         "刪除": "刪除"
         "無資料": "無資料"
-  init: (opt) -> opt.pubsub.fire \subinit, mod: mod(opt)
+  init: (opt) ->
+    opt.pubsub.on \inited, (o = {}) ~> @ <<< o
+    opt.pubsub.fire \subinit, mod: mod.call @, opt
+
 mod = ({root, ctx, data, parent, t, manager}) ->
   {ldview, ldcover} = ctx
+  hitf = ~> @hitf
+  fields = -> fields._blocks or hitf!get!config?fields or []
+  @client = ->
+    slot: docroot: target: root.querySelector('[ld=slotroot]'), mode: \manual
   init: ->
     lc = @mod.child
     lc <<< data: [], editor: [], adder: {fields: []}, lastmeta: {}, isnew: {}
@@ -26,12 +35,32 @@ mod = ({root, ctx, data, parent, t, manager}) ->
       lc.data = v
       lc.view.render!
     @on \mode, -> @mod.child.view.render!
+
+    docroot = hitf!slot key: \docroot
+    # only resolve fields in non-composing mode
+    p = if docroot and hitf!readonly! =>
+      ({host}) <- hitf!fragment {root: document.createElement(\div), data: {docroot}} .then _
+      blocks = host.nodemgr!blocks!
+      ret = blocks
+        .filter ({block}) -> typeof(block?interface?serialize) == \function
+        .map (obj) ->
+          meta = obj.block.interface.serialize!
+          bid = obj.node?block?bid or {}
+          if !meta?config.display => meta{}config.display = \inline
+          # TODO we may want to support full bid instead of by name. see manager.from below
+          type = (if typeof(bid) == \string => block.id2obj(bid) else bid)?name or \@makeform/input
+          {type, meta}
+      fields._blocks = ret
+    else Promise.resolve null
+    <~ p.then _
+
     value-to-widget = ~>
       @value lc.data .then ~>
         lc.view.render!
         # for rendering common fields such as error
         @mod.info.view.render!
-    getkey = @mod.child.getkey = (o, i) -> o.alias or o.key or o.title or i
+    getkey = @mod.child.getkey = (o, i) ->
+      o.alias or o.key or (if typeof(o.title) == \string => o.title else '') or i
 
     # - we need to wait for all fields initialized so validation can correctly validate all newly added fields
     # - yet we also need DOM for initing them which depends on ldview
@@ -52,12 +81,12 @@ mod = ({root, ctx, data, parent, t, manager}) ->
         lc.popup-input = new ldcover root: node, resident: true, in-place: true
       action: click:
         "popup-input-toggle": ~>
-          if @mod.info.meta.readonly => return
+          if hitf!get!readonly => return
           lc.popup-input.get!
         add: ({views}) ~>
-          if @mod.info.meta.readonly => return
+          if hitf!get!readonly => return
           lc.data.push new-row = {
-            list: @mod.info.config.fields.map (d,i) ->
+            list: fields!map (d,i) ->
               key = getkey(d,i)
               key: key
               value: lc.adder.fields[key].itf.value!
@@ -70,7 +99,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           p
             .then ~>
               # clean all `add` fields
-              @mod.info.config.fields.map (d,i) ->
+              fields!map (d,i) ->
                 lc.adder.fields[getkey(d,i)].itf.value null
               # update new-row to table value
               value-to-widget!
@@ -78,21 +107,21 @@ mod = ({root, ctx, data, parent, t, manager}) ->
 
       handler:
         "popup-input-toggle": ({node}) ~>
-          node.classList.toggle \disabled, !!@mod.info.meta.readonly
+          node.classList.toggle \disabled, !!hitf!get!readonly
         "add": ({node}) ~>
-          node.classList.toggle \disabled, !!@mod.info.meta.readonly
+          node.classList.toggle \disabled, !!hitf!get!readonly
         "entry-name": ({node}) ~>
-          n = @mod.info.meta.config.entry-name
+          n = hitf!get!config?entry-name
           node.innerText = if !n => '' else t(n)
         "no-data": ({node}) ->
           node.classList.toggle \d-none, (lc.data and lc.data.length)
         "span-cell": ({node}) ~>
-          node.setAttribute \colspan, (@mod.info.config.fields.length + 1)
-        headers: ({node}) ~> node.classList.toggle \d-none, !!@mod.info.config.no-header
+          node.setAttribute \colspan, (fields!length + 1)
+        headers: ({node}) ~> node.classList.toggle \d-none, !!hitf!get!config?no-header
         head:
-          list: ~> @mod.info.config.fields.map (d,i) -> {cfg: d, key: getkey(d,i)}
+          list: ~> fields!map (d,i) -> {cfg: d, key: getkey(d,i)}
           key: -> it.key
-          text: ({data}) -> t (data.cfg.meta.title or 'untitled')
+          text: ({data}) -> if data?cfg?meta?title => hitf!totext(that) else  t('untitled')
 
         row:
           list: -> lc.data
@@ -100,7 +129,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
           view:
             init: t: ({node}) -> node.setAttribute \t, node.innerText
             action: click: delete: ({views, ctx}) ~>
-              if @mod.info.meta.readonly => return
+              if hitf!get!readonly => return
               lc.editor[ctx.key] = null
               idx = lc.data.map(->it.key).indexOf(ctx.key)
               if idx == -1 => return
@@ -109,7 +138,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
               views.1.render!
             text: t: ({node}) -> node.innerText = t(node.getAttribute \t)
             handler:
-              delete: ({node}) ~> node.classList.toggle \disabled, !!@mod.info.meta.readonly
+              delete: ({node}) ~> node.classList.toggle \disabled, !!hitf!get!readonly
               "editor-field":
                 list: ({ctx}) -> ctx.list
                 key: -> it.key
@@ -123,6 +152,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     # leading to a infinite rendering.
                     # so, for now we only reinit if following field is not defined.
                     if lc.editor{}[ctxs.0.key][ctx.key] => return
+                    meta{}config.display = \inline
                     manager.from {name: type}, {root: node, data: meta}
                       .then (o) ~>
                         {bi, itf} = lc.editor{}[ctxs.0.key][ctx.key] = {bi: o.instance, itf: o.interface}
@@ -130,7 +160,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                         if @mod.child.host =>
                           itf.adapt({
                             upload: ({file, progress}) ~>
-                              @mod.child.host.upload({file, progress, alias: meta.title})
+                              @mod.child.host.upload({file, progress, alias: hitf!totext(meta.title)})
                           })
                         itf.value ctx.value
                         itf.on \change, ->
@@ -148,7 +178,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     isnew = @mod.child.isnew
                     if !(editor = lc.editor{}[ctxs.0.key][ctx.key]) => return
                     if !editor.itf => return
-                    meta = {} <<< (map[ctx.key].meta or {}) <<< {readonly: @mod.info.meta.readonly}
+                    meta = {} <<< (map[ctx.key].meta or {}) <<< {readonly: hitf!get!readonly}
                     strmeta = JSON.stringify(meta)
                     lastmeta = lastmap{}[ctxs.0.key][ctx.key]
                     lastmap[ctxs.0.key][ctx.key] = strmeta
@@ -168,7 +198,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                         editor.itf.mode @mode!
 
         "adder-field":
-          list: ~> @mod.info.config.fields.map (d,i) -> {cfg: d, key: getkey(d,i)}
+          list: ~> fields!map (d,i) -> {cfg: d, key: getkey(d,i)}
           key: (o) -> o.key
           view:
             init:
@@ -188,14 +218,14 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                   # table adapt may not yet called when we init. so we call itf adapt here.
                   itf.adapt({
                     upload: ({file, progress}) ~>
-                      @mod.child.host.upload({file, progress, alias: ctx.cfg.meta.title})
+                      @mod.child.host.upload({file, progress, alias: hitf!totext(ctx.cfg.meta.title)})
                   })
-                itf.deserialize({} <<< ctx.cfg._meta <<< {readonly: @mod.info.meta.readonly})
+                itf.deserialize({} <<< ctx.cfg._meta <<< {readonly: hitf!get!readonly})
                   .then ->
                     bi.transform \i18n
                     itf.render!
   render: ->
-    @mod.child.metamap = Object.fromEntries(@mod.info.config.fields.map (o,i) ~> [@mod.child.getkey(o,i) ,o])
+    @mod.child.metamap = Object.fromEntries(fields!map (o,i) ~> [@mod.child.getkey(o,i) ,o])
     @mod.child.view.render!
   adapt: (opt) ->
     @mod.child.host = opt
@@ -203,7 +233,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
   is-empty: (v) -> !Array.isArray(v) or !v.length
   validate: (opt = {}) ->
     itfs = []
-    if @mod.info.meta.is-required and @is-empty! =>
+    if hitf!get!is-required and @is-empty! =>
       @_errors = ["required"]
       @status if opt.init => 1 else 2
       @render!
@@ -218,6 +248,6 @@ mod = ({root, ctx, data, parent, t, manager}) ->
       .then ~>
         s = (Math.max.apply Math, itfs.map (o) -> o.itf.status!) >? 1
         if !opt.init and s == 1 =>
-          s = if @mod.info.is-required => 2 else 0
+          s = if hitf!get!is-required => 2 else 0
         @status s
         return @_errors = (if s == 2 => ["error"] else [])
