@@ -1,5 +1,11 @@
 # Change Logs
 
+## v3.0.0
+
+ - support `@grantdash/composer` host
+ - default `inline` display mode for fields
+
+
 ## v2.0.1
 
  - tweak `add` button layout to prevent text overflow
