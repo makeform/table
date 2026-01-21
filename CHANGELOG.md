@@ -4,6 +4,8 @@
 
  - support `@grantdash/composer` host
  - default `inline` display mode for fields
+ - fix bug: premature validation due to incorrect assignment of option and negligence to check force option.
+ - fix comment typo
 
 
 ## v2.0.1
