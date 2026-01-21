@@ -164,6 +164,7 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                           })
                         itf.value ctx.value
                         itf.on \change, ->
+                          lc.isnew{}[ctxs.0.key][ctx.key] = false
                           # lc.data may be overwritten so we have to lookup our object again
                           row = lc.data.filter(-> it.key == ctxs.0.key).0 or {}
                           col = row.[]list.filter(-> it.key == ctx.key).0
@@ -185,7 +186,8 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     Promise.resolve!
                       .then ->
                         if strmeta == lastmeta => return
-                        isnew{}[ctxs.0.key][ctx.key] = false
+                        if !editor.itf.is-equal(editor.itf.value!, ctx.value) => 
+                          isnew{}[ctxs.0.key][ctx.key] = false
                         editor.itf.deserialize meta, {init:true}
                       .then ~>
                         editor.bi.transform \i18n
@@ -241,13 +243,14 @@ mod = ({root, ctx, data, parent, t, manager}) ->
     @mod.child.data.map (r) ~> r.list.map (d) ~>
       if @mod.child.editor{}[r.key][d.key] => itfs.push {itf: that.itf, isnew: @mod.child.isnew{}[r.key][d.key]}
     # non-init validate before isnew is cleared will cause invalidate status for this table
-    # in this case, no errro hint in internal fields but table itself shows error,
+    # in this case, no error hint in internal fields but table itself shows error,
     # which causes confusion to users. thus, we use isnew to determine a uninited field status
     # and force init: true when validating them.
-    Promise.all(itfs.map (o) ~> o.itf.validate(opt <<< {init: o.isnew or opt.init}))
+    Promise.all(itfs.map (o) ~> o.itf.validate({} <<< opt <<< {init: (o.isnew and !opt.force) or opt.init}))
       .then ~>
-        s = (Math.max.apply Math, itfs.map (o) -> o.itf.status!) >? 1
+        # we used to add `>?1` however it seems to be wrong.
+        s = (Math.max.apply Math, itfs.map (o) -> o.itf.status!) #>? 1
         if !opt.init and s == 1 =>
-          s = if hitf!get!is-required => 2 else 0
+          s = if hitf!get!is-required => 3 else 0
         @status s
         return @_errors = (if s == 2 => ["error"] else [])
