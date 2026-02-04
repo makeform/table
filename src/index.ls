@@ -248,8 +248,10 @@ mod = ({root, ctx, data, parent, t, manager}) ->
     # and force init: true when validating them.
     Promise.all(itfs.map (o) ~> o.itf.validate({} <<< opt <<< {init: (o.isnew and !opt.force) or opt.init}))
       .then ~>
-        # we used to add `>?1` however it seems to be wrong.
+        # we used to add `>?1` however it seems to guard the case `itfs.length = 0`
+        # we use alternative approach ( s = 1 if s < 0 ) since it's better and correct
         s = (Math.max.apply Math, itfs.map (o) -> o.itf.status!) #>? 1
+        if s < 0 => s = 1
         if !opt.init and s == 1 =>
           s = if hitf!get!is-required => 3 else 0
         @status s

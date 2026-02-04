@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.1
+
+ - fix bug: state should be 1 if calculation result is -Infinity in validation function
+
+
 ## v3.0.0
 
  - support `@grantdash/composer` host
