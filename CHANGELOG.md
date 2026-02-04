@@ -1,9 +1,16 @@
 # Change Logs
 
+## v3.0.1
+
+ - fix bug: state should be 1 if calculation result is -Infinity in validation function
+
+
 ## v3.0.0
 
  - support `@grantdash/composer` host
  - default `inline` display mode for fields
+ - fix bug: premature validation due to incorrect assignment of option and negligence to check force option.
+ - fix comment typo
 
 
 ## v2.0.1
