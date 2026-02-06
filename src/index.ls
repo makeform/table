@@ -255,4 +255,4 @@ mod = ({root, ctx, data, parent, t, manager}) ->
         if !opt.init and s == 1 =>
           s = if hitf!get!is-required => 3 else 0
         @status s
-        return @_errors = (if s == 2 => ["error"] else [])
+        return @_errors = (if s == 2 => ["error"] else {status: s})

@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.2
+
+ - fix bug: table is considered valid when there are unfinished fields. validate should return object with status when there isn't error.
+
+
 ## v3.0.1
 
  - fix bug: state should be 1 if calculation result is -Infinity in validation function
