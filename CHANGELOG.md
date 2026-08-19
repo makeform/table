@@ -1,5 +1,10 @@
 # Change Logs
 
+## v3.0.3
+
+ - upgrade dependencies
+
+
 ## v3.0.2
 
  - fix bug: table is considered valid when there are unfinished fields. validate should return object with status when there isn't error.
