@@ -1,5 +1,11 @@
 # Change Logs
 
+## v3.1.1
+
+ - apply `field.display` from `@makeform/table:init` to adder fields as well, so fields in the add popup
+   of blocks such as `@makeform/section` show titles under `@grantdash/composer`.
+
+
 ## v3.1.0
 
  - support `@makeform/table:init` pubsub event for blocks extending table to config table.

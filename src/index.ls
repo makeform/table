@@ -215,6 +215,9 @@ mod = ({root, ctx, data, parent, t, manager, pubsub}) ->
               "@": ({ctx, node}) ->
                 {type, meta} = ctx.cfg
                 ctx.cfg._meta = meta = ({} <<< meta or {}) <<< {is-required: false}
+                # fields resolved from composer docroot default to `inline` ( see above ).
+                # apply `field.display` from `@makeform/table:init` here too, for blocks such as section.
+                if subcfg.field?display => meta.config = {} <<< (meta.config or {}) <<< {display: that}
                 manager.get name: (type or 'input')
                   .then (bc) -> bc.create!
                   .then (bi) -> bi.attach {root: node, data: meta} .then ->
