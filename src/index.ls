@@ -22,8 +22,13 @@ module.exports =
     opt.pubsub.on \inited, (o = {}) ~> @ <<< o
     opt.pubsub.fire \subinit, mod: mod.call @, opt
 
-mod = ({root, ctx, data, parent, t, manager}) ->
+mod = ({root, ctx, data, parent, t, manager, pubsub}) ->
   {ldview, ldcover} = ctx
+  # config from blocks extending table, e.g., `@makeform/section`. fired in their `init`:
+  #   pubsub.fire \@makeform/table:init, {field: {display: \block}}
+  # blocks are inited from base to child, so we always listen before child fires.
+  subcfg = {}
+  pubsub.on \@makeform/table:init, (o = {}) -> subcfg <<< o
   hitf = ~> @hitf
   fields = -> fields._blocks or hitf!get!config?fields or []
   @client = ->
@@ -152,7 +157,10 @@ mod = ({root, ctx, data, parent, t, manager}) ->
                     # leading to a infinite rendering.
                     # so, for now we only reinit if following field is not defined.
                     if lc.editor{}[ctxs.0.key][ctx.key] => return
-                    meta{}config.display = \inline
+                    # table has its own header so fields are shown inline ( without title ) by default.
+                    # blocks overwriting table DOM without a header ( e.g., `@makeform/section` )
+                    # can bring titles back with `field.display` in `@makeform/table:init` event.
+                    meta{}config.display = subcfg.field?display or \inline
                     manager.from {name: type}, {root: node, data: meta}
                       .then (o) ~>
                         {bi, itf} = lc.editor{}[ctxs.0.key][ctx.key] = {bi: o.instance, itf: o.interface}
